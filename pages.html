@@ -1,0 +1,92 @@
+<!-- profile.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>SocialSite</h1>
+    <nav>
+        <a href="feed.html">Home</a>
+        <a href="logout.php">Logout</a>
+    </nav>
+</header>
+
+<div class="profile-container">
+    <div class="profile-pic">
+        <img src="uploads/profile.jpg" alt="Profile Picture" width="150">
+    </div>
+    <div class="profile-details">
+        <h2>@username</h2>
+        <div class="profile-stats">
+            <div><strong>34</strong> posts</div>
+            <div><strong>128</strong> followers</div>
+            <div><strong>87</strong> following</div>
+        </div>
+        <div class="profile-bio">
+            <p>Name: Jane Doe</p>
+            <p>Age: 26</p>
+            <p>Bio: Explorer | Music Lover | Designer</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+<!-- feed.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Feed</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <h1>SocialSite</h1>
+    <nav>
+        <a href="profile.html">Profile</a>
+        <a href="logout.php">Logout</a>
+    </nav>
+</header>
+
+<div class="feed-container">
+    <div class="post">
+        <div class="post-header">
+            <img src="uploads/profile1.jpg" alt="User">
+            <span>@johndoe</span>
+        </div>
+        <img class="post-img" src="uploads/post1.jpg" alt="Post">
+        <div class="post-content">
+            <div class="post-actions">
+                <a href="#">Like</a>
+                <a href="#">Comment</a>
+                <a href="#">Share</a>
+            </div>
+            <p>Had an amazing time at the beach today! ☀️🌊</p>
+        </div>
+    </div>
+
+    <div class="post">
+        <div class="post-header">
+            <img src="uploads/profile2.jpg" alt="User">
+            <span>@alice</span>
+        </div>
+        <img class="post-img" src="uploads/post2.jpg" alt="Post">
+        <div class="post-content">
+            <div class="post-actions">
+                <a href="#">Like</a>
+                <a href="#">Comment</a>
+                <a href="#">Share</a>
+            </div>
+            <p>New artwork just dropped! 🎨✨</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
