@@ -1,0 +1,91 @@
+/* Import futuristic font */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+
+/* Apply base styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Orbitron', sans-serif;
+    color: #e0f7fa;
+    background: #0b0c2a;
+    overflow: hidden;
+}
+
+/* Background stars and spaceship */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('spaceship.svg') center center / contain no-repeat,
+                radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 300px, 4px 4px;
+    animation: spaceship-float 15s linear infinite;
+    z-index: -1;
+}
+
+@keyframes spaceship-float {
+    0% {
+        transform: translateY(0) translateX(0);
+    }
+    50% {
+        transform: translateY(-20px) translateX(10px);
+    }
+    100% {
+        transform: translateY(0) translateX(0);
+    }
+}
+
+/* Pastel highlight palette */
+:root {
+    --pastel-blue: #a7c7e7;
+    --pastel-pink: #f5a6d1;
+    --pastel-purple: #c5a3ff;
+    --pastel-mint: #a3ffe1;
+    --pastel-yellow: #fff3a3;
+}
+
+/* Landing Page Container */
+.landing-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.landing-container h1 {
+    font-size: 64px;
+    color: var(--pastel-mint);
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px var(--pastel-purple);
+}
+
+.landing-container p {
+    font-size: 20px;
+    color: var(--pastel-blue);
+    margin-bottom: 40px;
+}
+
+.landing-buttons a {
+    text-decoration: none;
+    margin: 10px;
+    padding: 14px 28px;
+    font-size: 18px;
+    background-color: var(--pastel-pink);
+    color: #0b0c2a;
+    border-radius: 8px;
+    box-shadow: 0 0 8px var(--pastel-purple);
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.landing-buttons a:hover {
+    background-color: var(--pastel-yellow);
+    transform: scale(1.05);
+}
