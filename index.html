@@ -1,7 +1,19 @@
+<!-- social_site/index.php -->
+<?php
+session_start();
+if (isset($_SESSION['user_id'])) {
+    header("Location: home.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html>
+<head>
+    <title>Social Site</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 <body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
+    <h1>Welcome to Social Site</h1>
+    <a href="signup.php">Sign Up</a> | <a href="login.php">Login</a>
 </body>
 </html>
