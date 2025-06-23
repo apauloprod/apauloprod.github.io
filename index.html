@@ -11,7 +11,7 @@ if (isset($_SESSION['user_id'])) {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Social Site</title>
+    <title>SOCIALSITE</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -27,80 +27,7 @@ if (isset($_SESSION['user_id'])) {
 <h1>Welcome!</h1>
 <a href="profile.html">Edit Profile</a> | <a href="post.php">New Post</a> | <a href="feed.html">Community Board</a> | <a href="logout.php">Logout</a>
 
-<!-- social_site/logout.php -->
-<?php
-session_start();
-session_destroy();
-header("Location: index.php");
-exit();
-?>
 
-<!-- social_site/profile.php -->
-<?php
-require 'db.php';
-session_start();
-if (!isset($_SESSION['user_id'])) exit();
-$user_id = $_SESSION['user_id'];
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = $_POST['name'];
-    $age = $_POST['age'];
-    $bio = $_POST['bio'];
-    $pic = '';
-    if (isset($_FILES['profile_pic'])) {
-        $target = 'uploads/' . basename($_FILES['profile_pic']['name']);
-        move_uploaded_file($_FILES['profile_pic']['tmp_name'], $target);
-        $pic = $target;
-    }
-    $sql = "UPDATE users SET name=$1, age=$2, bio=$3, profile_pic=$4 WHERE id=$5";
-    $params = array($name, $age, $bio, $pic, $user_id);
-    pg_query_params($conn, $sql, $params);
-    echo "Profile updated.";
-}
-?>
-<form method="POST" enctype="multipart/form-data">
-    Name: <input type="text" name="name"><br>
-    Age: <input type="number" name="age"><br>
-    Bio: <textarea name="bio"></textarea><br>
-    Profile Picture: <input type="file" name="profile_pic"><br>
-    <input type="submit" value="Save">
-</form>
 
-<!-- social_site/post.php -->
-<?php
-require 'db.php';
-session_start();
-if (!isset($_SESSION['user_id'])) exit();
-$user_id = $_SESSION['user_id'];
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $content = $_POST['content'];
-    $media = '';
-    if (isset($_FILES['media'])) {
-        $target = 'uploads/' . basename($_FILES['media']['name']);
-        move_uploaded_file($_FILES['media']['tmp_name'], $target);
-        $media = $target;
-    }
-    $sql = "INSERT INTO posts (user_id, content, media) VALUES ($1, $2, $3)";
-    $params = array($user_id, $content, $media);
-    pg_query_params($conn, $sql, $params);
-    echo "Post uploaded.";
-}
-?>
-<form method="POST" enctype="multipart/form-data">
-    Content: <textarea name="content"></textarea><br>
-    Media (Image/Video): <input type="file" name="media"><br>
-    <input type="submit" value="Post">
-</form>
 
-<!-- social_site/feed.php -->
-<?php
-require 'db.php';
-$sql = "SELECT posts.id, users.username, content, media FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.id DESC";
-$result = pg_query($conn, $sql);
-while ($row = pg_fetch_assoc($result)) {
-    echo "<div><h3>" . htmlspecialchars($row['username']) . "</h3>";
-    echo "<p>" . htmlspecialchars($row['content']) . "</p>";
-    if ($row['media']) echo "<img src='" . htmlspecialchars($row['media']) . "' width='200'><br>";
-    echo "<a href='like.php?post_id={$row['id']}'>Like</a> | <a href='comment.php?post_id={$row['id']}'>Comment</a> | <a href='share.php?post_id={$row['id']}'>Share</a>";
-    echo "</div><hr>";
-}
-?>
+
