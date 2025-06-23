@@ -17,3 +17,158 @@ if (isset($_SESSION['user_id'])) {
     <a href="signup.php">Sign Up</a> | <a href="login.php">Login</a>
 </body>
 </html>
+
+<!-- social_site/db.php -->
+<?php
+$host = 'localhost';
+$user = 'root';
+$pass = '';
+$db = 'social_site';
+$conn = new mysqli($host, $user, $pass, $db);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+?>
+
+<!-- social_site/signup.php -->
+<?php
+require 'db.php';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $sql = "INSERT INTO users (username, password) VALUES (?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $username, $password);
+    $stmt->execute();
+    header("Location: login.php");
+    exit();
+}
+?>
+<form method="POST">
+    Username: <input type="text" name="username" required><br>
+    Password: <input type="password" name="password" required><br>
+    <input type="submit" value="Sign Up">
+</form>
+
+<!-- social_site/login.php -->
+<?php
+require 'db.php';
+session_start();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    $sql = "SELECT id, password FROM users WHERE username = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $stmt->store_result();
+    if ($stmt->num_rows > 0) {
+        $stmt->bind_result($id, $hash);
+        $stmt->fetch();
+        if (password_verify($password, $hash)) {
+            $_SESSION['user_id'] = $id;
+            header("Location: home.php");
+            exit();
+        }
+    }
+    echo "Login failed.";
+}
+?>
+<form method="POST">
+    Username: <input type="text" name="username" required><br>
+    Password: <input type="password" name="password" required><br>
+    <input type="submit" value="Login">
+</form>
+
+<!-- social_site/home.php -->
+<?php
+require 'db.php';
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
+$user_id = $_SESSION['user_id'];
+?>
+<h1>Welcome!</h1>
+<a href="profile.php">Edit Profile</a> | <a href="post.php">New Post</a> | <a href="feed.php">Community Board</a> | <a href="logout.php">Logout</a>
+
+<!-- social_site/logout.php -->
+<?php
+session_start();
+session_destroy();
+header("Location: index.php");
+exit();
+?>
+
+<!-- social_site/profile.php -->
+<?php
+require 'db.php';
+session_start();
+if (!isset($_SESSION['user_id'])) exit();
+$user_id = $_SESSION['user_id'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name = $_POST['name'];
+    $age = $_POST['age'];
+    $bio = $_POST['bio'];
+    $pic = '';
+    if (isset($_FILES['profile_pic'])) {
+        $target = 'uploads/' . basename($_FILES['profile_pic']['name']);
+        move_uploaded_file($_FILES['profile_pic']['tmp_name'], $target);
+        $pic = $target;
+    }
+    $sql = "UPDATE users SET name=?, age=?, bio=?, profile_pic=? WHERE id=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sissi", $name, $age, $bio, $pic, $user_id);
+    $stmt->execute();
+    echo "Profile updated.";
+}
+?>
+<form method="POST" enctype="multipart/form-data">
+    Name: <input type="text" name="name"><br>
+    Age: <input type="number" name="age"><br>
+    Bio: <textarea name="bio"></textarea><br>
+    Profile Picture: <input type="file" name="profile_pic"><br>
+    <input type="submit" value="Save">
+</form>
+
+<!-- social_site/post.php -->
+<?php
+require 'db.php';
+session_start();
+if (!isset($_SESSION['user_id'])) exit();
+$user_id = $_SESSION['user_id'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $content = $_POST['content'];
+    $media = '';
+    if (isset($_FILES['media'])) {
+        $target = 'uploads/' . basename($_FILES['media']['name']);
+        move_uploaded_file($_FILES['media']['tmp_name'], $target);
+        $media = $target;
+    }
+    $sql = "INSERT INTO posts (user_id, content, media) VALUES (?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("iss", $user_id, $content, $media);
+    $stmt->execute();
+    echo "Post uploaded.";
+}
+?>
+<form method="POST" enctype="multipart/form-data">
+    Content: <textarea name="content"></textarea><br>
+    Media (Image/Video): <input type="file" name="media"><br>
+    <input type="submit" value="Post">
+</form>
+
+<!-- social_site/feed.php -->
+<?php
+require 'db.php';
+$sql = "SELECT posts.id, users.username, content, media FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.id DESC";
+$result = $conn->query($sql);
+while ($row = $result->fetch_assoc()) {
+    echo "<div><h3>" . htmlspecialchars($row['username']) . "</h3>";
+    echo "<p>" . htmlspecialchars($row['content']) . "</p>";
+    if ($row['media']) echo "<img src='" . htmlspecialchars($row['media']) . "' width='200'><br>";
+    echo "<a href='like.php?post_id={$row['id']}'>Like</a> | <a href='comment.php?post_id={$row['id']}'>Comment</a> | <a href='share.php?post_id={$row['id']}'>Share</a>";
+    echo "</div><hr>";
+}
+?>
