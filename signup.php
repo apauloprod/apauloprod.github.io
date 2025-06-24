@@ -11,20 +11,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($username) || empty($password)) {
         $error = "Username and password are required.";
     } else {
-        // Check if username already exists
         $check_sql = "SELECT id FROM users WHERE username = $1";
         $check_result = pg_query_params($conn, $check_sql, array($username));
 
         if (pg_num_rows($check_result) > 0) {
             $error = "Username already exists.";
         } else {
-            // Insert new user
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
             $insert_sql = "INSERT INTO users (username, password) VALUES ($1, $2)";
             $result = pg_query_params($conn, $insert_sql, array($username, $hashed_password));
 
             if ($result) {
-                echo "User created successfully. You can now <a href='login.php'>log in</a>.";
+                echo "<p style='color: lightgreen;'>User created successfully. You can now <a href='login.php'>log in</a>.</p>";
                 exit();
             } else {
                 $error = "Error creating user.";
@@ -34,12 +32,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<form method="POST" action="signup.php">
-    <label>Username:</label>
-    <input type="text" name="username" required><br>
-    <label>Password:</label>
-    <input type="password" name="password" required><br>
-    <input type="submit" value="Sign Up">
-</form>
-
-<?php if (!empty($error)) echo "<p style='color: red;'>$error</p>"; ?>
+<!DOCTYPE html> 
+<html>
+<head>
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="futuristic_theme.css">
+</head>
+<body>
+<div class="landing-container">
+    <h1>Create Account</h1>
+    <?php if (!empty($error)) echo "<p style='color: pink;'>$error</p>"; ?>
+    <form method="POST">
+        <input type="text" name="username" placeholder="Username" required><br><br>
+        <input type="password" name="password" placeholder="Password" required><br><br>
+        <input type="submit" value="Sign Up" class="btn">
+    </form>
+    <p>Already have an account? <a href="login.php">Log In</a></p>
+</div>
+</body>
+</html>
