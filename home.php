@@ -8,3 +8,26 @@ if (!isset($_SESSION['user_id'])) {
 }
 $user_id = $_SESSION['user_id'];
 ?>
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LYV</title>
+    <link rel="stylesheet" href="futuristic_theme.css">
+</head>
+<body>
+    <h1>Live Your Vision</h1>
+    <a href="signup.php">Sign Up</a> | <a href="login.php">Login</a>
+</body>
+</html>
+
+
+
+
+
+<h1>Welcome!</h1>
+<a href="profile.html">Edit Profile</a> | <a href="post.php">New Post</a> | <a href="feed.html">Community Board</a> | <a href="logout.php">Logout</a>
+
+
