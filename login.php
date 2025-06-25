@@ -22,11 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo "Login failed.";
 }
 ?>
-<form method="POST">
-    Username: <input type="text" name="username" required><br>
-    Password: <input type="password" name="password" required><br>
-    <input type="submit" value="Login">
-</form>
+
 
 
 
