@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 <div class="landing-container">
     <h1>Create Account</h1>
-    <?php if (!empty($error)) echo "<p style='color: pink;'>$error</p>"; ?>
+    <?php if (!empty($error)) echo "<p style='color: pink;'>thereisanerror</p>"; ?>
     <form method="POST">
         <input type="text" name="username" placeholder="Username" required><br><br>
         <input type="password" name="password" placeholder="Password" required><br><br>
