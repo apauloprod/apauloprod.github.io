@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $row = pg_fetch_assoc($result);
         if (password_verify($password, $row['password'])) {
             $_SESSION['user_id'] = $row['id'];
+            $_SESSION['username'] = $username;
             header("Location: home.php");
             exit();
         }

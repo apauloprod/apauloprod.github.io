@@ -26,6 +26,6 @@ if (isset($_SESSION['user_id'])) {
 
 
 <h1>Welcome!</h1>
-<a href="profile.html">Edit Profile</a> | <a href="post.php">New Post</a> | <a href="feed.html">Community Board</a> | <a href="logout.php">Logout</a>
+<a href="profile.html">Edit Profile</a> | <a href="post.php">New Post</a> | <a href="feed.html">Community Board</a> | <a href="logout.php">Logout</a> | <a href="spaceminigame.php">Mini Game</a>
 
 
