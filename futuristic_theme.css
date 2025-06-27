@@ -7,12 +7,14 @@ body, html {
     padding: 0;
     height: 100%;
     font-family: 'Orbitron', sans-serif;
-    color: #e0f7fa;
-    background: #0b0c2a;
+    /*color: #e0f7fa;
+    background: #0b0c2a;*/
     overflow: hidden;
 }
 
+
 /* Background stars and spaceship */
+/*
 body::before {
     content: '';
     position: absolute;
@@ -26,8 +28,10 @@ body::before {
     animation: spaceship-float 15s linear infinite;
     z-index: -1;
 }
+*/
 
-@keyframes spaceship-float {
+
+/*@keyframes spaceship-float {
     0% {
         transform: translateY(0) translateX(0);
     }
@@ -38,6 +42,7 @@ body::before {
         transform: translateY(0) translateX(0);
     }
 }
+*/
 
 /* Pastel highlight palette */
 :root {
