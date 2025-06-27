@@ -8,6 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 ?>
 <!DOCTYPE html>
 <html>
+<!-- background: black; -->
 <head>
     <title>Home - LYV</title>
     <link rel="stylesheet" href="futuristic_theme.css">
@@ -18,7 +19,7 @@ if (!isset($_SESSION['user_id'])) {
             height: 100%;
             overflow: hidden;
             font-family: 'Orbitron', sans-serif;
-            background: black;
+            
         }
         
         body::-webkit-scrollbar {
@@ -61,6 +62,32 @@ if (!isset($_SESSION['user_id'])) {
             }
         }
 
+        .dropdown {
+        position: relative;
+        display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #222;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            z-index: 1001;
+        }
+        .dropdown-content a {
+            color: #fff;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown-content a:hover {
+            background-color: #333;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
         .header {
             position: fixed;
             top: 0;
@@ -83,6 +110,10 @@ if (!isset($_SESSION['user_id'])) {
             display: flex;
             align-items: center;
         }
+        .header .right {
+        padding-right: 20px;
+        position: relative;
+        }
     </style>
     <script>
         let prevScrollPos = window.pageYOffset;
@@ -99,31 +130,39 @@ if (!isset($_SESSION['user_id'])) {
     </script>
 </head>
 <body>
-    <div class="header">
-        <div class="left">
-            <a href="home.php">Home</a>
-            <a href="post.php">New Post</a>
-            <a href="feed.php">Community Board</a>
-            <a href="spaceminigame.php">Mini Game</a>
-            <a href="shop.php">Your Shop</a>
-        </div>
-        <div class="right">
-            <?php if (isset($_SESSION['user_id'])): ?>
-                <a href="profile.php">Profile</a>
-                <span style="margin-left: 10px;">Hello, <?= htmlspecialchars($_SESSION['username']) ?></span>
-                <a href="logout.php">Logout</a>
-            <?php else: ?>
-                <a href="signup.php">Sign Up</a>
-                <a href="login.php">Login</a>
-            <?php endif; ?>
-        </div>
-    </div>
-
     <!-- Fallback space video background -->
     <video autoplay muted loop id="space-bg">
         <source src="assets/space_bg.mp4" type="video/mp4">
         Your browser does not support HTML5 video.
     </video>
+
+  <div class="header">
+      <div class="left">
+          <a href="home.php">Home</a>
+          <a href="post.php">New Post</a>
+          <a href="feed.php">Community Board</a>
+          <a href="spaceminigame.php">Mini Game</a>
+          <a href="shop.php">Your Shop</a>
+      </div>
+      <div class="right">
+          <?php if (isset($_SESSION['user_id'])): ?>
+              <div class="dropdown">
+                  <a href="#">👤 Hello, <?= htmlspecialchars($_SESSION['username']) ?></a>
+                  <div class="dropdown-content">
+                      <a href="profile.php">Profile</a>
+                      <a href="portfolio.php">Portfolio</a>
+                      <a href="logout.php">Logout</a>
+                  </div>
+              </div>
+          <?php else: ?>
+              <a href="signup.php">Sign Up</a>
+              <a href="login.php">Login</a>
+          <?php endif; ?>
+      </div>
+  </div>
+
+
+
 
     <div class="floating-text">Live Your Vision</div>
 </body>

@@ -56,6 +56,7 @@ $user = pg_fetch_assoc($result);
             }
         }
 
+
         .header {
             position: fixed;
             top: 0;
@@ -78,6 +79,37 @@ $user = pg_fetch_assoc($result);
             display: flex;
             align-items: center;
         }
+        .header .right {
+        padding-right: 20px;
+        position: relative;
+        }
+
+        .dropdown {
+        position: relative;
+        display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #222;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            z-index: 1001;
+        }
+        .dropdown-content a {
+            color: #fff;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown-content a:hover {
+            background-color: #333;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
 
         .content {
             margin-top: 70px; /* adjust if your header is taller or shorter */
@@ -102,25 +134,30 @@ $user = pg_fetch_assoc($result);
     </script>
 </head>
 <body>
-    <div class="header">
-        <div class="left">
-            <a href="home.php">Home</a>
-            <a href="post.php">New Post</a>
-            <a href="feed.php">Community Board</a>
-            <a href="spaceminigame.php">Mini Game</a>
-            <a href="shop.php">Your Shop</a>
-        </div>
-        <div class="right">
-            <?php if (isset($_SESSION['user_id'])): ?>
-                <a href="profile.php">Profile</a>
-                <span style="margin-left: 10px;">Hello, <?= htmlspecialchars($_SESSION['username']) ?></span>
-                <a href="logout.php">Logout</a>
-            <?php else: ?>
-                <a href="signup.php">Sign Up</a>
-                <a href="login.php">Login</a>
-            <?php endif; ?>
-        </div>
-    </div>
+      <div class="header">
+          <div class="left">
+              <a href="home.php">Home</a>
+              <a href="post.php">New Post</a>
+              <a href="feed.php">Community Board</a>
+              <a href="spaceminigame.php">Mini Game</a>
+              <a href="shop.php">Your Shop</a>
+          </div>
+          <div class="right">
+              <?php if (isset($_SESSION['user_id'])): ?>
+                  <div class="dropdown">
+                      <a href="#">👤 Hello, <?= htmlspecialchars($_SESSION['username']) ?></a>
+                      <div class="dropdown-content">
+                          <a href="profile.php">Profile</a>
+                          <a href="portfolio.php">Portfolio</a>
+                          <a href="logout.php">Logout</a>
+                      </div>
+                  </div>
+              <?php else: ?>
+                  <a href="signup.php">Sign Up</a>
+                  <a href="login.php">Login</a>
+              <?php endif; ?>
+          </div>
+      </div>
 
     <div class="content">
         <h1>Your Profile</h1>
