@@ -101,7 +101,7 @@ if (isset($_SESSION['user_id'])) {
     </div>
 
     <div class="centered">
-        <h1>Join Our Vision</h1>
+        <h1>Do You Have A Vision?</h1>
         <p>Subscribe to get updates about our growing community.</p>
         <form method="POST" action="subscribe.php">
             <input type="email" name="email" placeholder="Your Email Address" required><br>

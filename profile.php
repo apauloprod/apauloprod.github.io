@@ -22,7 +22,6 @@ $user = pg_fetch_assoc($result);
             height: 100%;
             overflow: hidden;
             font-family: 'Orbitron', sans-serif;
-            background: black;
         }
 
         #space-bg {
@@ -116,6 +115,7 @@ $user = pg_fetch_assoc($result);
             padding: 20px;
             overflow-y: auto;
             height: calc(100vh - 70px); /* fill remaining space below header */
+            color: #8de6d6;
         }
 
     </style>
@@ -134,6 +134,12 @@ $user = pg_fetch_assoc($result);
     </script>
 </head>
 <body>
+
+    <video autoplay muted loop id="space-bg">
+        <source src="assets/space_bg.mp4" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+
       <div class="header">
           <div class="left">
               <a href="home.php">Home</a>
