@@ -48,6 +48,12 @@ if (isset($_SESSION['user_id'])) {
         .centered h1 {
             margin-bottom: 1rem;
             font-size: 2.5rem;
+            width: 100%;
+            font-size: 3rem;
+            color: #fff;
+            text-shadow: 0 0 20px #00f5ff, 0 0 40px #ff69f4;
+            animation: float 6s ease-in-out infinite;
+            z-index: 1;
         }
         .centered input[type="email"] {
             padding: 0.75rem;
@@ -101,7 +107,7 @@ if (isset($_SESSION['user_id'])) {
     </div>
 
     <div class="centered">
-        <h1>Do You Have A Vision?</h1>
+        <h1>What's Your Vision?</h1>
         <p>Subscribe to get updates about our growing community.</p>
         <form method="POST" action="subscribe.php">
             <input type="email" name="email" placeholder="Your Email Address" required><br>

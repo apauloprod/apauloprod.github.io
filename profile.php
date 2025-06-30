@@ -1,19 +1,22 @@
-<!-- social_site/profile.php -->
 <?php
 require 'db.php';
 session_start();
 if (!isset($_SESSION['user_id'])) exit();
 $user_id = $_SESSION['user_id'];
 
-// Fetch current user data using PostgreSQL
+// Fetch user data
 $sql = "SELECT username, name, age, bio, profile_pic FROM users WHERE id = $1";
 $result = pg_query_params($conn, $sql, [$user_id]);
 $user = pg_fetch_assoc($result);
+
+// Fetch user's posts
+$posts_sql = "SELECT id, content, media FROM posts WHERE user_id = $1 ORDER BY id DESC";
+$posts_result = pg_query_params($conn, $posts_sql, [$user_id]);
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Home - LYV</title>
+    <title>Your Profile</title>
     <link rel="stylesheet" href="futuristic_theme.css">
     <style>
         html, body {
@@ -23,7 +26,6 @@ $user = pg_fetch_assoc($result);
             overflow: hidden;
             font-family: 'Orbitron', sans-serif;
         }
-
         #space-bg {
             position: fixed;
             top: 0;
@@ -33,29 +35,6 @@ $user = pg_fetch_assoc($result);
             object-fit: cover;
             z-index: -1;
         }
-
-        .floating-text {
-            position: absolute;
-            top: 40%;
-            width: 100%;
-            text-align: center;
-            font-size: 3rem;
-            color: #fff;
-            text-shadow: 0 0 20px #00f5ff, 0 0 40px #ff69f4;
-            animation: float 6s ease-in-out infinite;
-            z-index: 1;
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(-10px);
-            }
-            50% {
-                transform: translateY(10px);
-            }
-        }
-
-
         .header {
             position: fixed;
             top: 0;
@@ -67,7 +46,6 @@ $user = pg_fetch_assoc($result);
             align-items: center;
             padding: 10px 20px;
             z-index: 999;
-            transition: top 0.3s;
         }
         .header a {
             color: #fff;
@@ -78,14 +56,8 @@ $user = pg_fetch_assoc($result);
             display: flex;
             align-items: center;
         }
-        .header .right {
-        padding-right: 20px;
-        position: relative;
-        }
-
         .dropdown {
-        position: relative;
-        display: inline-block;
+            position: relative;
         }
         .dropdown-content {
             display: none;
@@ -108,85 +80,101 @@ $user = pg_fetch_assoc($result);
         .dropdown:hover .dropdown-content {
             display: block;
         }
-
-
         .content {
-            margin-top: 70px; /* adjust if your header is taller or shorter */
+            margin-top: 70px;
             padding: 20px;
             overflow-y: auto;
-            height: calc(100vh - 70px); /* fill remaining space below header */
+            height: calc(100vh - 70px);
             color: #8de6d6;
         }
-
+        .post {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 30px;
+            padding: 20px;
+            box-shadow: 0 0 10px #00f5ff;
+        }
+        .post img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .post textarea {
+            width: 100%;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            border-radius: 6px;
+            background-color: rgba(255,255,255,0.1);
+            color: #fff;
+            border: none;
+        }
+        .post form button {
+            margin-top: 10px;
+            padding: 0.5rem 1rem;
+            background-color: #8de6d6;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .post form button.delete {
+            background-color: #ff4d4d;
+            color: #fff;
+        }
     </style>
-    <script>
-        let prevScrollPos = window.pageYOffset;
-        window.onscroll = function () {
-            const currentScrollPos = window.pageYOffset;
-            const header = document.querySelector(".header");
-            if (prevScrollPos > currentScrollPos) {
-                header.style.top = "0";
-            } else {
-                header.style.top = "-70px";
-            }
-            prevScrollPos = currentScrollPos;
-        };
-    </script>
 </head>
 <body>
-
-    <video autoplay muted loop id="space-bg">
-        <source src="assets/space_bg.mp4" type="video/mp4">
-        Your browser does not support HTML5 video.
-    </video>
-
-      <div class="header">
-          <div class="left">
-              <a href="home.php">Home</a>
-              <a href="post.php">New Post</a>
-              <a href="feed.php">Community Board</a>
-              <a href="spaceminigame.php">Mini Game</a>
-              <a href="shop.php">Your Shop</a>
-          </div>
-          <div class="right">
-              <?php if (isset($_SESSION['user_id'])): ?>
-                  <div class="dropdown">
-                      <a href="#">👤 Hello, <?= htmlspecialchars($_SESSION['username']) ?></a>
-                      <div class="dropdown-content">
-                          <a href="profile.php">Profile</a>
-                          <a href="portfolio.php">Portfolio</a>
-                          <a href="logout.php">Logout</a>
-                      </div>
-                  </div>
-              <?php else: ?>
-                  <a href="signup.php">Sign Up</a>
-                  <a href="login.php">Login</a>
-              <?php endif; ?>
-          </div>
-      </div>
-
-    <div class="content">
-        <h1>Your Profile</h1>
-        <p><strong>Username:</strong> <?= htmlspecialchars($user['username']) ?></p>
-
-        <p><strong>Name:</strong> <?= htmlspecialchars($user['name']) ?> 
-            <a href="edit_field.php?field=name">Edit</a>
-        </p>
-
-        <p><strong>Age:</strong> <?= htmlspecialchars($user['age']) ?> 
-            <a href="edit_field.php?field=age">Edit</a>
-        </p>
-
-        <p><strong>Bio:</strong><br><?= nl2br(htmlspecialchars($user['bio'])) ?> 
-            <a href="edit_field.php?field=bio">Edit</a>
-        </p>
-
-        <p><strong>Profile Picture:</strong><br>
-            <?php if ($user['profile_pic']): ?>
-                <img src="<?= htmlspecialchars($user['profile_pic']) ?>" width="150" alt="Profile Picture"><br>
-            <?php endif; ?>
-            <a href="edit_field.php?field=profile_pic">Change Picture</a>
-        </p>
+<video autoplay muted loop id="space-bg">
+    <source src="assets/space_bg.mp4" type="video/mp4">
+</video>
+<div class="header">
+    <div class="left">
+        <a href="home.php">Home</a>
+        <a href="post.php">New Post</a>
+        <a href="feed.php">Community Board</a>
+        <a href="spaceminigame.php">Mini Game</a>
     </div>
+    <div class="right">
+        <div class="dropdown">
+            <a href="#">👤 Hello, <?= htmlspecialchars($_SESSION['username']) ?></a>
+            <div class="dropdown-content">
+                <a href="profile.php">Profile</a>
+                <a href="portfolio.php">Portfolio</a>
+                <a href="logout.php">Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="content">
+    <h1>Your Profile</h1>
+    <p><strong>Username:</strong> <?= htmlspecialchars($user['username']) ?></p>
+    <p><strong>Name:</strong> <?= htmlspecialchars($user['name']) ?> <a href="edit_field.php?field=name">Edit</a></p>
+    <p><strong>Age:</strong> <?= htmlspecialchars($user['age']) ?> <a href="edit_field.php?field=age">Edit</a></p>
+    <p><strong>Bio:</strong><br><?= nl2br(htmlspecialchars($user['bio'])) ?> <a href="edit_field.php?field=bio">Edit</a></p>
+    <p><strong>Profile Picture:</strong><br>
+        <?php if ($user['profile_pic']): ?>
+            <img src="<?= htmlspecialchars($user['profile_pic']) ?>" width="150" alt="Profile Picture"><br>
+        <?php endif; ?>
+        <a href="edit_field.php?field=profile_pic">Change Picture</a>
+    </p>
+
+    <h2>Your Posts</h2>
+    <?php while ($post = pg_fetch_assoc($posts_result)): ?>
+        <div class="post">
+            <form method="POST" action="update_post.php">
+                <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
+                <?php if ($post['media']): ?>
+                    <img src="<?= htmlspecialchars($post['media']) ?>" alt="Post image">
+                <?php endif; ?>
+                <textarea name="content"><?= htmlspecialchars($post['content']) ?></textarea><br>
+                <button type="submit">Update</button>
+            </form>
+            <form method="POST" action="delete_post.php" onsubmit="return confirm('Are you sure you want to delete this post?');">
+                <input type="hidden" name="post_id" value="<?= $post['id'] ?>">
+                <button type="submit" class="delete">Delete</button>
+            </form>
+        </div>
+    <?php endwhile; ?>
+</div>
 </body>
 </html>

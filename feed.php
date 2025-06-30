@@ -17,6 +17,7 @@ session_start();
             font-family: 'Orbitron', sans-serif;
             background: transparent;
             overflow-x: hidden;
+            overflow-y: auto;
         }
 
         #space-bg {
@@ -117,7 +118,6 @@ session_start();
         <a href="post.php">New Post</a>
         <a href="feed.php">Community Board</a>
         <a href="spaceminigame.php">Mini Game</a>
-        <a href="shop.php">Your Shop</a>
     </div>
     <div class="right">
         <?php if (isset($_SESSION['user_id'])): ?>
@@ -133,14 +133,17 @@ session_start();
 
 <div class="content">
     <?php
-    $sql = "SELECT posts.id, users.username, content, media FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.id DESC";
+    $sql = "SELECT posts.id, users.username, content, media, zoom FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.id DESC";
     $result = pg_query($conn, $sql);
     while ($row = pg_fetch_assoc($result)) {
+        $zoom = isset($row['zoom']) ? floatval($row['zoom']) : 1.0;
         echo "<div class='post'>";
-        echo "<h3>@" . htmlspecialchars($row['username']) . "</h3>";
+        //echo "<h3>@" . htmlspecialchars($row['username']) . "</h3>";
+        echo "<h3><a href='user.php?username=" . urlencode($row['username']) . "'>@"
+     . htmlspecialchars($row['username']) . "</a></h3>";
         echo "<p>" . nl2br(htmlspecialchars($row['content'])) . "</p>";
         if (!empty($row['media'])) {
-            echo "<img src='" . htmlspecialchars($row['media']) . "' alt='Post Image' style='transform: scale(1.0);'>";
+            echo "<img src='" . htmlspecialchars($row['media']) . "' alt='Post Image' style='transform: scale({$zoom});'>";
         }
         echo "<div class='post-actions'>";
         echo "<a href='like.php?post_id={$row['id']}'>Like</a>";

@@ -3,9 +3,12 @@ require 'db.php';
 session_start();
 if (!isset($_SESSION['user_id'])) exit();
 $user_id = $_SESSION['user_id'];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $content = $_POST['content'];
+    $scale = isset($_POST['zoom_scale']) ? floatval($_POST['zoom_scale']) : 1.0;
     $media = '';
+
     if (isset($_FILES['media']) && $_FILES['media']['size'] > 0) {
         $target = 'uploads/' . basename($_FILES['media']['name']);
         move_uploaded_file($_FILES['media']['tmp_name'], $target);
@@ -17,11 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $srcW = imagesx($srcImage);
             $srcH = imagesy($srcImage);
-            $minDim = min($srcW, $srcH);
-            $srcX = ($srcW - $minDim) / 2;
-            $srcY = ($srcH - $minDim) / 2;
+            $zoomedSize = intval(1080 / $scale);
+            $srcX = max(0, ($srcW - $zoomedSize) / 2);
+            $srcY = max(0, ($srcH - $zoomedSize) / 2);
+            $cropSize = min($zoomedSize, $srcW, $srcH);
 
-            imagecopyresampled($resized, $srcImage, 0, 0, $srcX, $srcY, 1080, 1080, $minDim, $minDim);
+            imagecopyresampled($resized, $srcImage, 0, 0, $srcX, $srcY, 1080, 1080, $cropSize, $cropSize);
+
             ($imageType == IMAGETYPE_JPEG) ? imagejpeg($resized, $target) : imagepng($resized, $target);
             imagedestroy($srcImage);
             imagedestroy($resized);
@@ -29,8 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $media = $target;
     }
-    $sql = "INSERT INTO posts (user_id, content, media) VALUES ($1, $2, $3)";
-    $params = array($user_id, $content, $media);
+
+    $sql = "INSERT INTO posts (user_id, content, media, zoom) VALUES ($1, $2, $3, $4)";
+    $params = array($user_id, $content, $media, $scale);
     pg_query_params($conn, $sql, $params);
     header("Location: feed.php");
     exit();
@@ -52,7 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: transparent;
             overflow-x: hidden;
         }
-
         #space-bg {
             position: fixed;
             top: 0;
@@ -62,7 +67,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             object-fit: cover;
             z-index: -1;
         }
-
         .header {
             position: fixed;
             top: 0;
@@ -75,18 +79,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             padding: 10px 20px;
             z-index: 1000;
         }
-
         .header a {
             color: #fff;
             text-decoration: none;
             margin-left: 20px;
         }
-
         .header .left, .header .right {
             display: flex;
             align-items: center;
         }
-
         .content {
             margin-top: 100px;
             max-width: 600px;
@@ -97,7 +98,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             padding: 2rem;
             text-align: center;
         }
-
         textarea {
             width: 100%;
             height: 100px;
@@ -109,7 +109,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: rgba(255, 255, 255, 0.1);
             color: #fff;
         }
-
         .glow-button {
             display: inline-block;
             padding: 0.75rem 1.5rem;
@@ -125,12 +124,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             text-shadow: 0 0 8px #8de6d6;
             transition: background-color 0.3s, color 0.3s;
         }
-
         .glow-button:hover {
             background-color: #8de6d6;
             color: #000;
         }
-
         .preview-container {
             position: relative;
             width: 300px;
@@ -138,14 +135,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin: 1rem auto;
             overflow: hidden;
         }
-
         .preview {
             width: 100%;
             height: 100%;
             object-fit: contain;
             transition: transform 0.3s;
         }
-
         .upload-label {
             display: inline-block;
             padding: 0.75rem 1.5rem;
@@ -157,96 +152,87 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: transparent;
             text-shadow: 0 0 8px #8de6d6;
         }
-
         .upload-label:hover {
             background-color: #8de6d6;
             color: #000;
         }
-
         #media-input {
             display: none;
         }
     </style>
 </head>
 <body>
-    <video autoplay muted loop id="space-bg">
-        <source src="assets/space_bg.mp4" type="video/mp4">
-        Your browser does not support HTML5 video.
-    </video>
-
-    <div class="header">
-        <div class="left">
-            <a href="home.php">Home</a>
-            <a href="post.php">New Post</a>
-            <a href="feed.php">Community Board</a>
-            <a href="spaceminigame.php">Mini Game</a>
-            <a href="shop.php">Your Shop</a>
-        </div>
-        <div class="right">
-            <?php if (isset($_SESSION['user_id'])): ?>
-                <a href="profile.php">Profile</a>
-                <span style="margin-left: 10px; padding-right: 10px;">Hello, <?= htmlspecialchars($_SESSION['username']) ?></span>
-            <?php else: ?>
-                <a href="signup.php">Sign Up</a>
-                <a href="login.php">Login</a>
-            <?php endif; ?>
-        </div>
+<video autoplay muted loop id="space-bg">
+    <source src="assets/space_bg.mp4" type="video/mp4">
+    Your browser does not support HTML5 video.
+</video>
+<div class="header">
+    <div class="left">
+        <a href="home.php">Home</a>
+        <a href="post.php">New Post</a>
+        <a href="feed.php">Community Board</a>
+        <a href="spaceminigame.php">Mini Game</a>
     </div>
-
-    <div class="content">
-        <h2>Create a New Post</h2>
-        <form method="POST" enctype="multipart/form-data">
-            <textarea name="content" placeholder="What's on your mind?" required></textarea>
-
-            <label for="media-input" class="upload-label" id="upload-label">Upload Photo</label>
-            <input type="file" id="media-input" name="media" accept="image/*">
-
-            <div class="preview-container">
-                <img id="media-preview" class="preview" src="#" alt="Preview" style="display: none;">
-            </div>
-
-            <button type="button" class="glow-button" id="zoom-out" style="display: none;">Zoom Out</button>
-            <button type="button" class="glow-button" id="zoom-in" style="display: none;">Zoom In</button>
-
-            <input type="submit" value="Post" class="glow-button">
-        </form>
+    <div class="right">
+        <?php if (isset($_SESSION['user_id'])): ?>
+            <a href="profile.php">Profile</a>
+            <span style="margin-left: 10px;">Hello, <?= htmlspecialchars($_SESSION['username']) ?></span>
+        <?php else: ?>
+            <a href="signup.php">Sign Up</a>
+            <a href="login.php">Login</a>
+        <?php endif; ?>
     </div>
-
-    <script>
-        const mediaInput = document.getElementById('media-input');
-        const preview = document.getElementById('media-preview');
-        const uploadLabel = document.getElementById('upload-label');
-        const zoomOutBtn = document.getElementById('zoom-out');
-        const zoomInBtn = document.getElementById('zoom-in');
-
-        let scale = 1.0;
-
-        mediaInput.addEventListener('change', function () {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    preview.setAttribute('src', e.target.result);
-                    preview.style.display = 'block';
-                    zoomOutBtn.style.display = 'inline-block';
-                    zoomInBtn.style.display = 'inline-block';
-                    uploadLabel.textContent = 'Change Photo';
-                    scale = 1.0;
-                    preview.style.transform = `scale(${scale})`;
-                }
-                reader.readAsDataURL(file);
+</div>
+<div class="content">
+    <h2>Create a New Post</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <textarea name="content" placeholder="What's on your mind?" required></textarea>
+        <label for="media-input" class="upload-label" id="upload-label">Upload Photo</label>
+        <input type="file" id="media-input" name="media" accept="image/*">
+        <input type="hidden" name="zoom_scale" id="zoom-scale" value="1.0">
+        <div class="preview-container">
+            <img id="media-preview" class="preview" src="#" alt="Preview" style="display: none;">
+        </div>
+        <button type="button" class="glow-button" id="zoom-out" style="display: none;">Zoom Out</button>
+        <button type="button" class="glow-button" id="zoom-in" style="display: none;">Zoom In</button>
+        <input type="submit" value="Post" class="glow-button">
+    </form>
+</div>
+<script>
+    const mediaInput = document.getElementById('media-input');
+    const preview = document.getElementById('media-preview');
+    const uploadLabel = document.getElementById('upload-label');
+    const zoomOutBtn = document.getElementById('zoom-out');
+    const zoomInBtn = document.getElementById('zoom-in');
+    const zoomInput = document.getElementById('zoom-scale');
+    let scale = 1.0;
+    mediaInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.setAttribute('src', e.target.result);
+                preview.style.display = 'block';
+                zoomOutBtn.style.display = 'inline-block';
+                zoomInBtn.style.display = 'inline-block';
+                uploadLabel.textContent = 'Change Photo';
+                scale = 1.0;
+                preview.style.transform = `scale(${scale})`;
+                zoomInput.value = scale;
             }
-        });
-
-        zoomOutBtn.addEventListener('click', function () {
-            scale = Math.max(0.5, scale - 0.1);
-            preview.style.transform = `scale(${scale})`;
-        });
-
-        zoomInBtn.addEventListener('click', function () {
-            scale = Math.min(2.0, scale + 0.1);
-            preview.style.transform = `scale(${scale})`;
-        });
-    </script>
+            reader.readAsDataURL(file);
+        }
+    });
+    zoomOutBtn.addEventListener('click', function () {
+        scale = Math.max(0.5, scale - 0.1);
+        preview.style.transform = `scale(${scale})`;
+        zoomInput.value = scale;
+    });
+    zoomInBtn.addEventListener('click', function () {
+        scale = Math.min(2.0, scale + 0.1);
+        preview.style.transform = `scale(${scale})`;
+        zoomInput.value = scale;
+    });
+</script>
 </body>
 </html>
