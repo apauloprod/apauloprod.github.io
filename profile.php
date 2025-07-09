@@ -9,6 +9,14 @@ $sql = "SELECT username, name, age, bio, profile_pic FROM users WHERE id = $1";
 $result = pg_query_params($conn, $sql, [$user_id]);
 $user = pg_fetch_assoc($result);
 
+
+$followers_result = pg_query_params($conn, "SELECT COUNT(*) FROM follows WHERE followed_id = $1", [$user_id]);
+$followers_count = pg_fetch_result($followers_result, 0, 0);
+
+$friends_result = pg_query($conn, "SELECT COUNT(*) FROM follows f1 JOIN follows f2 ON f1.follower_id = f2.followed_id AND f1.followed_id = f2.follower_id WHERE f1.followed_id = $user_id");
+$friends_count = pg_fetch_result($friends_result, 0, 0);
+
+
 // Fetch user's posts
 $posts_sql = "SELECT id, content, media FROM posts WHERE user_id = $1 ORDER BY id DESC";
 $posts_result = pg_query_params($conn, $posts_sql, [$user_id]);
@@ -129,10 +137,12 @@ $posts_result = pg_query_params($conn, $posts_sql, [$user_id]);
 </video>
 <div class="header">
     <div class="left">
-        <a href="home.php">Home</a>
-        <a href="post.php">New Post</a>
-        <a href="feed.php">Community Board</a>
-        <a href="spaceminigame.php">Mini Game</a>
+          <a href="home.php">Home</a>
+          <a href="post.php">New Post</a>
+          <a href="your_feed.php">Your Feed</a>
+          <a href="feed.php">Community Board</a>
+          <a href="spaceminigame.php">Mini Game</a>
+          <a href="shop.php">Your Shop</a>
     </div>
     <div class="right">
         <div class="dropdown">
@@ -140,6 +150,7 @@ $posts_result = pg_query_params($conn, $posts_sql, [$user_id]);
             <div class="dropdown-content">
                 <a href="profile.php">Profile</a>
                 <a href="portfolio.php">Portfolio</a>
+                <a href="liked_posts.php">Liked Posts</a>
                 <a href="logout.php">Logout</a>
             </div>
         </div>
@@ -148,6 +159,19 @@ $posts_result = pg_query_params($conn, $posts_sql, [$user_id]);
 <div class="content">
     <h1>Your Profile</h1>
     <p><strong>Username:</strong> <?= htmlspecialchars($user['username']) ?></p>
+    <p>
+    <strong>
+        <a href="friends_followers.php" style="color: #8de6d6; text-decoration: underline;">
+            Followers:
+        </a>
+    </strong> <?= $followers_count ?>
+    |
+    <strong>
+        <a href="friends_followers.php" style="color: #8de6d6; text-decoration: underline;">
+            Friends:
+        </a>
+    </strong> <?= $friends_count ?>
+    </p>
     <p><strong>Name:</strong> <?= htmlspecialchars($user['name']) ?> <a href="edit_field.php?field=name">Edit</a></p>
     <p><strong>Age:</strong> <?= htmlspecialchars($user['age']) ?> <a href="edit_field.php?field=age">Edit</a></p>
     <p><strong>Bio:</strong><br><?= nl2br(htmlspecialchars($user['bio'])) ?> <a href="edit_field.php?field=bio">Edit</a></p>

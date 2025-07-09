@@ -111,7 +111,7 @@ if (!isset($_SESSION['user_id'])) {
             align-items: center;
         }
         .header .right {
-        padding-right: 20px;
+        padding-right: 50px;
         position: relative;
         }
     </style>
@@ -136,30 +136,32 @@ if (!isset($_SESSION['user_id'])) {
         Your browser does not support HTML5 video.
     </video>
 
-  <div class="header">
-      <div class="left">
-          <a href="home.php">Home</a>
-          <a href="post.php">New Post</a>
-          <a href="feed.php">Community Board</a>
-          <a href="spaceminigame.php">Mini Game</a>
-          <a href="shop.php">Your Shop</a>
-      </div>
-      <div class="right">
-          <?php if (isset($_SESSION['user_id'])): ?>
-              <div class="dropdown">
-                  <a href="#">👤 Hello, <?= htmlspecialchars($_SESSION['username']) ?></a>
-                  <div class="dropdown-content">
-                      <a href="profile.php">Profile</a>
-                      <a href="portfolio.php">Portfolio</a>
-                      <a href="logout.php">Logout</a>
-                  </div>
-              </div>
-          <?php else: ?>
+    <div class="header">
+        <div class="left">
+            <a href="home.php">Home</a>
+            <a href="post.php">New Post</a>
+            <a href="your_feed.php">Your Feed</a>
+            <a href="feed.php">Community Board</a>
+            <a href="spaceminigame.php">Mini Game</a>
+            <a href="shop.php">Your Shop</a>
+        </div>
+        <div class="right">
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <div class="dropdown">
+                    <a href="#">👤 Hello, <?= htmlspecialchars($_SESSION['username']) ?></a>
+                    <div class="dropdown-content">
+                        <a href="profile.php">Profile</a>
+                        <a href="portfolio.php">Portfolio</a>
+                        <a href="liked_posts.php">Liked Posts</a>
+                        <a href="logout.php">Logout</a>
+                    </div>
+                </div>
+            <?php else: ?>
               <a href="signup.php">Sign Up</a>
               <a href="login.php">Login</a>
-          <?php endif; ?>
-      </div>
-  </div>
+            <?php endif; ?>
+        </div>
+    </div>
 
 
 

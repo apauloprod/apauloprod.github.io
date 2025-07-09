@@ -15,6 +15,23 @@ if (pg_num_rows($user_result) !== 1) {
 }
 $user = pg_fetch_assoc($user_result);
 $user_id = $user['id'];
+$viewer_id = $_SESSION['user_id'] ?? null;
+$is_following = false;
+$is_friend = false;
+
+if ($viewer_id && $viewer_id != $user_id) {
+    $check_follow = pg_query_params($conn, "SELECT 1 FROM follows WHERE follower_id = $1 AND followed_id = $2", [$viewer_id, $user_id]);
+    $is_following = pg_num_rows($check_follow) > 0;
+
+    $check_friend = pg_query_params($conn, "SELECT 1 FROM follows WHERE follower_id = $1 AND followed_id = $2", [$user_id, $viewer_id]);
+    $is_friend = pg_num_rows($check_friend) > 0;
+}
+
+$followers_result = pg_query_params($conn, "SELECT COUNT(*) FROM follows WHERE followed_id = $1", [$user_id]);
+$followers_count = pg_fetch_result($followers_result, 0, 0);
+
+$friends_result = pg_query($conn, "SELECT COUNT(*) FROM follows f1 JOIN follows f2 ON f1.follower_id = f2.followed_id AND f1.followed_id = f2.follower_id WHERE f1.followed_id = $user_id");
+$friends_count = pg_fetch_result($friends_result, 0, 0);
 
 $posts_result = pg_query_params($conn, "SELECT content, media FROM posts WHERE user_id = $1 ORDER BY id DESC", [$user_id]);
 ?>
@@ -91,6 +108,38 @@ $posts_result = pg_query_params($conn, "SELECT content, media FROM posts WHERE u
         <?php endif; ?>
         <p><strong>Name:</strong> <?= htmlspecialchars($user['name']) ?></p>
         <p><?= nl2br(htmlspecialchars($user['bio'])) ?></p>
+
+        <p><a href="portfolio.php?user_id=<?= $user['id'] ?>" class="glow-button">View Portfolio</a></p>
+
+
+        <p>
+            <strong>
+                <a href="friends_followers.php" style="color: #8de6d6; text-decoration: underline;">
+                    Followers:
+                </a>
+            </strong> <?= $followers_count ?>
+            |
+            <strong>
+                <a href="friends_followers.php" style="color: #8de6d6; text-decoration: underline;">
+                    Friends:
+                </a>
+            </strong> <?= $friends_count ?>
+        </p>
+
+
+        <?php if ($viewer_id && $viewer_id != $user_id): ?>
+            <form method="POST" action="follow_action.php">
+                <input type="hidden" name="followed_id" value="<?= $user_id ?>">
+                <button type="submit" class="glow-button" name="action" value="<?= $is_following ? 'unfollow' : 'follow' ?>">
+                    <?= $is_following ? 'Unfollow' : 'Follow' ?>
+                </button>
+            </form>
+            <?php if ($is_following && $is_friend): ?>
+                <p>You are friends!</p>
+            <?php elseif ($is_following): ?>
+                <p>You are following this user.</p>
+            <?php endif; ?>
+        <?php endif; ?>
 
         <h2>Posts</h2>
         <?php while ($post = pg_fetch_assoc($posts_result)): ?>

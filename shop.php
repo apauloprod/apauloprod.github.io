@@ -1,3 +1,13 @@
+<?php
+require 'db.php';
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
+?>
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,6 +23,34 @@
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       object-fit: cover; z-index: -1;
     }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #222;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            z-index: 1001;
+        }
+        .dropdown-content a {
+            color: #fff;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown-content a:hover {
+            background-color: #333;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+
     .header {
       position: fixed; top: 0; width: 100%; background-color: #111;
       color: #fff; display: flex; justify-content: space-between; align-items: center;
@@ -24,6 +62,11 @@
     .header .left, .header .right {
       display: flex; align-items: center;
     }
+    .header .right {
+      padding-right: 20px;
+      position: relative;
+    }
+
     .products-container {
       position: relative;
       margin: 110px auto 40px;
@@ -100,13 +143,26 @@
     <div class="left">
       <a href="home.php">Home</a>
       <a href="post.php">New Post</a>
+      <a href="your_feed.php">Your Feed</a>
       <a href="feed.php">Community Board</a>
       <a href="spaceminigame.php">Mini Game</a>
       <a href="shop.php">Your Shop</a>
     </div>
     <div class="right">
-      <a href="profile.php">Profile</a>
-      <a href="logout.php">Logout</a>
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <div class="dropdown">
+                    <a href="#">👤 Hello, <?= htmlspecialchars($_SESSION['username']) ?></a>
+                    <div class="dropdown-content">
+                        <a href="profile.php">Profile</a>
+                        <a href="portfolio.php">Portfolio</a>
+                        <a href="liked_posts.php">Liked Posts</a>
+                        <a href="logout.php">Logout</a>
+                    </div>
+                </div>
+            <?php else: ?>
+              <a href="signup.php">Sign Up</a>
+              <a href="login.php">Login</a>
+            <?php endif; ?>
     </div>
   </div>
 
