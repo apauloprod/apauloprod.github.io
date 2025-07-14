@@ -1,6 +1,11 @@
 <?php
 require 'db.php';
 session_start();
+if (!isset($_SESSION['user_id'])) {
+    echo "<p>Please log in to see the feed.</p>";
+    exit();
+}
+$user_id = $_SESSION['user_id'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -173,10 +178,21 @@ session_start();
 
 <div class="content">
     <?php
-    $sql = "SELECT posts.id, users.username, content, media, zoom FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.id DESC";
-    $result = pg_query($conn, $sql);
+    $sql = "SELECT posts.id, users.username, content, media, zoom, (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id) AS like_count, (SELECT COUNT(*) FROM likes WHERE likes.post_id = posts.id AND likes.user_id = $1) > 0 AS user_liked FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.id DESC";
+    $result = pg_query_params($conn, $sql, array($user_id));
+
+    if (!$result) {
+        echo "<p>Error loading posts: " . pg_last_error($conn) . "</p>";
+        exit();
+    }
+
+
     while ($row = pg_fetch_assoc($result)) {
         $zoom = isset($row['zoom']) ? floatval($row['zoom']) : 1.0;
+        $likeCount = $row['like_count'] ?? 0;
+        $liked = $row['user_liked'] === 't';
+        $label = $liked ? "Unlike" : "Like";
+
         echo "<div class='post'>";
         //echo "<h3>@" . htmlspecialchars($row['username']) . "</h3>";
         echo "<h3><a href='user.php?username=" . urlencode($row['username']) . "'>@"
@@ -186,12 +202,62 @@ session_start();
             echo "<img src='" . htmlspecialchars($row['media']) . "' alt='Post Image' style='transform: scale({$zoom});'>";
         }
         echo "<div class='post-actions'>";
-        echo "<a href='like.php?post_id={$row['id']}'>Like</a>";
+
+        //echo "<a href='like.php?post_id={$row['id']}'>Like</a>";
+        //echo "({$likeCount}) ";  // show the number of likes here
+
+        //echo "<a href='#' class='like-button' data-post-id='{$row['id']}'>Like</a>";
+        //echo " <span class='like-count' id='like-count-{$row['id']}'>({$likeCount})</span>";
+        //echo "<a href='#' class='like-button' data-post-id='{$row['id']}'>Like ({$likeCount})</a>";
+        echo "<a href='#' class='like-button' data-post-id='{$row['id']}' data-liked='" . ($liked ? "true" : "false") . "' data-like-count='{$likeCount}'>{$label} ({$likeCount})</a>";
+
+
+
+        
         echo "<a href='comment.php?post_id={$row['id']}'>Comment</a>";
         echo "<a href='share.php?post_id={$row['id']}'>Share</a>";
         echo "</div></div>";
     }
     ?>
 </div>
+
+<script>//this.textContent = data.liked ? 'Unlike' : 'Like';
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.like-button').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            const postId = this.getAttribute('data-post-id');
+            const likeButton = this;
+
+            fetch('like.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'post_id=' + encodeURIComponent(postId)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    //const likeCountSpan = document.getElementById('like-count-' + postId);
+                    //likeCountSpan.textContent = data.like_count;
+                    //likeButton.textContent = data.liked ? 'Unlike' : 'Like';
+
+                    likeButton.textContent = data.liked ? `Unlike (${data.like_count})` : `Like (${data.like_count})`;
+                    
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(err => {
+                console.error('Fetch error:', err);
+                alert('Network error');
+            });
+        });
+    });
+});
+</script>
+
+
 </body>
 </html>

@@ -126,6 +126,9 @@ $result = pg_query_params($conn, $sql, [$user_id]);
 <?php while ($row = pg_fetch_assoc($result)): ?>
     <div class="post">
         <h3>@<?= htmlspecialchars($row['username']) ?></h3>
+
+
+
         <p><?= nl2br(htmlspecialchars($row['content'])) ?></p>
         <?php if (!empty($row['media'])): ?>
             <img src="<?= htmlspecialchars($row['media']) ?>" alt="Post Image">

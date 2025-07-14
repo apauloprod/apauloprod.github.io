@@ -1,4 +1,3 @@
-<!-- social_site/db.php -->
 <?php
 $host = 'localhost';
 $port = "5432";
@@ -9,4 +8,3 @@ $conn = pg_connect("host=$host port=$port dbname=$db user=$user password=$pass")
 if (!$conn) {
     die("Connection failed: " . pg_last_error());
 }
-?>

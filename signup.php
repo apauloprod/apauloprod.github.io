@@ -1,28 +1,49 @@
 <!-- social_site/signup.php -->
 <?php
-require 'db.php'; // PostgreSQL db connection
+require 'db.php';
+session_start();
+
+function generateVerificationCode() {
+    return rand(100000, 999999);
+}
+
+// Consider using PHPMailer or SendGrid/Mailgun for production reliability
+function sendVerificationEmail($to, $code) {
+    $subject = "Verify your LYV account";
+    $message = "Your verification code is: $code";
+    $headers = "From: no-reply@liveyourvision.com";
+
+    // For production use, configure a mail server or external SMTP
+    mail($to, $subject, $message, $headers);
+}
 
 $error = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
+    $email = trim($_POST['email']);
 
-    if (empty($username) || empty($password)) {
-        $error = "Username and password are required.";
+    if (empty($username) || empty($password) || empty($email)) {
+        $error = "All fields are required.";
     } else {
-        $check_sql = "SELECT id FROM users WHERE username = $1";
-        $check_result = pg_query_params($conn, $check_sql, array($username));
+        $check_sql = "SELECT id FROM users WHERE username = $1 OR email = $2";
+        $check_result = pg_query_params($conn, $check_sql, array($username, $email));
 
         if (pg_num_rows($check_result) > 0) {
-            $error = "Username already exists.";
+            $error = "Username or email already exists.";
         } else {
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $insert_sql = "INSERT INTO users (username, password) VALUES ($1, $2)";
-            $result = pg_query_params($conn, $insert_sql, array($username, $hashed_password));
+            $verification_code = generateVerificationCode();
+
+            $insert_sql = "INSERT INTO users (username, password, email, email_verified, verification_code) VALUES ($1, $2, $3, false, $4)";
+            $result = pg_query_params($conn, $insert_sql, array($username, $hashed_password, $email, $verification_code));
 
             if ($result) {
-                echo "<p style='color: lightgreen;'>User created successfully. You can now <a href='login.php'>log in</a>.</p>";
+                sendVerificationEmail($email, $verification_code);
+                $_SESSION['pending_user'] = $username;
+                $_SESSION['verification_message'] = "Verification code sent! Please check your email.";
+                header("Location: verify_email.php");
                 exit();
             } else {
                 $error = "Error creating user.";
@@ -94,6 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if (!empty($error)) echo "<p style='color: pink;'>$error</p>"; ?>
         <form method="POST">
             <input type="text" name="username" placeholder="Username" required><br><br>
+            <input type="email" name="email" placeholder="Email" required><br>
             <input type="password" name="password" placeholder="Password" required><br><br>
             <input type="submit" value="Sign Up" class="btn">
         </form>
