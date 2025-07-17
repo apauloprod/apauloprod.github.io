@@ -197,6 +197,7 @@ if (isset($_SESSION['user_id'])) {
       <div class="left">
           <a href="home.php">Home</a>
           <a href="post.php">New Post</a>
+          <a href="your_feed.php">Your Feed</a>
           <a href="feed.php">Community Board</a>
           <a href="spaceminigame.php">Mini Game</a>
           <a href="shop.php">Your Shop</a>

@@ -107,18 +107,20 @@ $posts_result = pg_query_params($conn, "SELECT content, media FROM posts WHERE u
             <img src="<?= htmlspecialchars($user['profile_pic']) ?>" class="profile-pic" alt="Profile Picture">
         <?php endif; ?>
         <p><strong>Name:</strong> <?= htmlspecialchars($user['name']) ?></p>
+        <!--<p><strong>Age:</strong> <?= htmlspecialchars($user['age']) ?></p>
+        <p><strong>Bio:</strong> <?= htmlspecialchars($user['bio']) ?></p>-->
         <p><?= nl2br(htmlspecialchars($user['bio'])) ?></p>
 
-        <p><a href="portfolio.php?user_id=<?= $user['id'] ?>" class="glow-button">View Portfolio</a></p>
+
 
 
         <p>
-            <strong>
+            <!--<strong>
                 <a href="friends_followers.php" style="color: #8de6d6; text-decoration: underline;">
                     Followers:
                 </a>
             </strong> <?= $followers_count ?>
-            |
+            |-->
             <strong>
                 <a href="friends_followers.php" style="color: #8de6d6; text-decoration: underline;">
                     Friends:
@@ -128,18 +130,21 @@ $posts_result = pg_query_params($conn, "SELECT content, media FROM posts WHERE u
 
 
         <?php if ($viewer_id && $viewer_id != $user_id): ?>
-            <form method="POST" action="follow_action.php">
-                <input type="hidden" name="followed_id" value="<?= $user_id ?>">
-                <button type="submit" class="glow-button" name="action" value="<?= $is_following ? 'unfollow' : 'follow' ?>">
-                    <?= $is_following ? 'Unfollow' : 'Follow' ?>
-                </button>
-            </form>
+
             <?php if ($is_following && $is_friend): ?>
                 <p>You are friends!</p>
             <?php elseif ($is_following): ?>
                 <p>You are following this user.</p>
             <?php endif; ?>
         <?php endif; ?>
+                    <form method="POST" action="follow_action.php">
+                <input type="hidden" name="followed_id" value="<?= $user_id ?>">
+                <button type="submit" class="glow-button" name="action" value="<?= $is_following ? 'unfollow' : 'follow' ?>">
+                    <?= $is_following ? 'Unfollow' : 'Follow' ?>
+                </button>
+            </form>
+
+        <p><a href="portfolio.php?user_id=<?= $user['id'] ?>" class="glow-button">View Portfolio</a></p>
 
         <h2>Posts</h2>
         <?php while ($post = pg_fetch_assoc($posts_result)): ?>

@@ -126,6 +126,13 @@ $result = pg_query_params($conn, $sql, [$user_id]);
         <a href="feed.php">Community Board</a>
         <a href="spaceminigame.php">Mini Game</a>
         <a href="shop.php">Your Shop</a>
+                <form action="search.php" method="GET" class="search-form" style="margin-left: 20px;">
+    <input type="text" name="q" placeholder="Search users, posts, #tags" 
+           style="padding: 5px 10px; border-radius: 6px; border: none;">
+    <button type="submit" style="padding: 5px 10px; background-color: #8de6d6; color: black; border-radius: 6px; border: none;">
+        🔍
+    </button>
+</form>
     </div>
     <div class="right">
             <?php if (isset($_SESSION['user_id'])): ?>

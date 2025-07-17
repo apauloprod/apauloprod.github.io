@@ -71,11 +71,11 @@ $friends_query = pg_query_params($conn, "
         <?php endwhile; ?>
     </ul>
 
-    <h2>👣 Followers</h2>
+    <!--<h2>👣 Followers</h2>
     <ul>
         <?php while ($row = pg_fetch_assoc($followers_query)): ?>
             <li><a href="user.php?username=<?= htmlspecialchars($row['username']) ?>">@<?= htmlspecialchars($row['username']) ?></a></li>
         <?php endwhile; ?>
-    </ul>
+    </ul>-->
 </body>
 </html>
