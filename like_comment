@@ -1,0 +1,36 @@
+<?php
+require 'db.php';
+session_start();
+if (!isset($_SESSION['user_id'])) exit();
+
+$user_id = $_SESSION['user_id'];
+$comment_id = $_POST['comment_id'] ?? null;
+
+if (!$comment_id) {
+    echo json_encode(['success' => false, 'message' => 'Missing comment ID']);
+    exit;
+}
+
+// Check if already liked
+$check = pg_query_params($conn, "SELECT 1 FROM comment_likes WHERE user_id = $1 AND comment_id = $2", [$user_id, $comment_id]);
+
+if (pg_num_rows($check) > 0) {
+    // Unlike
+    pg_query_params($conn, "DELETE FROM comment_likes WHERE user_id = $1 AND comment_id = $2", [$user_id, $comment_id]);
+    $liked = false;
+} else {
+    // Like
+    pg_query_params($conn, "INSERT INTO comment_likes (user_id, comment_id) VALUES ($1, $2)", [$user_id, $comment_id]);
+    $liked = true;
+}
+
+// Get updated like count
+$count_result = pg_query_params($conn, "SELECT COUNT(*) FROM comment_likes WHERE comment_id = $1", [$comment_id]);
+$count = pg_fetch_result($count_result, 0, 0);
+
+echo json_encode([
+    'success' => true,
+    'liked' => $liked,
+    'like_count' => $count
+]);
+?>
